@@ -5,5 +5,6 @@ const attendanceController = require('../controllers/attendanceController');
 router.post('/', attendanceController.addAttendance);
 router.get('/student/:studentId', attendanceController.getAttendanceByStudent);
 router.put('/:id', attendanceController.updateAttendance);
+router.delete('/:id', attendanceController.deleteAttendance);
 
 module.exports = router;

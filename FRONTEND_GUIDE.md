@@ -1094,7 +1094,7 @@ export default function StudentsPage() {
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/api',
+  baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api',
   headers: {
     'Content-Type': 'application/json',
   },
@@ -1106,7 +1106,10 @@ api.interceptors.request.use(
     // Add auth token if available
     const user = localStorage.getItem('user');
     if (user) {
+      const userData = JSON.parse(user);
+      config.headers['x-user-id'] = userData.id;
       // Future: Add JWT token here
+      // config.headers['Authorization'] = `Bearer ${userData.token}`;
     }
     return config;
   },
@@ -1127,26 +1130,51 @@ api.interceptors.response.use(
 
 export default api;
 
-// API Endpoints
+// ============================================
+// STUDENTS API - All endpoints available ✅
+// ============================================
 export const studentsAPI = {
   getAll: () => api.get('/students'),
   getById: (id) => api.get(`/students/${id}`),
   create: (data) => api.post('/students', data),
+  update: (id, data) => api.put(`/students/${id}`, data),           // ✅ NEW
+  delete: (id) => api.delete(`/students/${id}`),                     // ✅ NEW
   getReportCard: (id) => api.get(`/students/${id}/report-card`),
 };
 
+// ============================================
+// GRADES API - All endpoints available ✅
+// ============================================
 export const gradesAPI = {
   getByStudent: (studentId) => api.get(`/grades/student/${studentId}`),
   create: (data) => api.post('/grades', data),
   update: (id, data) => api.put(`/grades/${id}`, data),
+  delete: (id) => api.delete(`/grades/${id}`),                       // ✅ NEW
 };
 
+// ============================================
+// ATTENDANCE API - All endpoints available ✅
+// ============================================
 export const attendanceAPI = {
   getByStudent: (studentId) => api.get(`/attendance/student/${studentId}`),
   create: (data) => api.post('/attendance', data),
   update: (id, data) => api.put(`/attendance/${id}`, data),
+  delete: (id) => api.delete(`/attendance/${id}`),                   // ✅ NEW
 };
 
+// ============================================
+// OBSERVED VALUES API - All endpoints available ✅
+// ============================================
+export const observedValuesAPI = {
+  getByStudent: (studentId) => api.get(`/observed-values/student/${studentId}`),
+  create: (data) => api.post('/observed-values', data),
+  update: (id, data) => api.put(`/observed-values/${id}`, data),
+  delete: (id) => api.delete(`/observed-values/${id}`),              // ✅ NEW
+};
+
+// ============================================
+// SUBJECTS API - All endpoints available ✅
+// ============================================
 export const subjectsAPI = {
   getAll: () => api.get('/subjects'),
   getById: (id) => api.get(`/subjects/${id}`),
@@ -1155,12 +1183,54 @@ export const subjectsAPI = {
   delete: (id) => api.delete(`/subjects/${id}`),
 };
 
+// ============================================
+// ACCOUNTS API - All endpoints available ✅
+// ============================================
 export const accountsAPI = {
   getAll: () => api.get('/accounts'),
   getById: (id) => api.get(`/accounts/${id}`),
   create: (data) => api.post('/accounts', data),
   update: (id, data) => api.put(`/accounts/${id}`, data),
   delete: (id) => api.delete(`/accounts/${id}`),
+};
+
+// ============================================
+// ANALYTICS API - For Super Admin Dashboard ✅ NEW
+// ============================================
+export const analyticsAPI = {
+  getDashboardStats: () => api.get('/analytics/dashboard-stats'),
+  getStudentDistribution: () => api.get('/analytics/student-distribution'),
+  getGradePerformance: () => api.get('/analytics/grade-performance'),
+  getAttendanceTrend: (year) => api.get(`/analytics/attendance-trend?year=${year || new Date().getFullYear()}`),
+  getGradeDistribution: () => api.get('/analytics/grade-distribution'),
+};
+
+// ============================================
+// REPORTS API - For Reports Module ✅ NEW
+// ============================================
+export const reportsAPI = {
+  getClassSummary: (params) => api.get('/reports/class-summary', { params }),
+  // params: { gradeLevel, section }
+  
+  getGradeAnalytics: (params) => api.get('/reports/grade-analytics', { params }),
+  // params: { quarter, gradeLevel }
+  
+  getAttendanceSummary: (params) => api.get('/reports/attendance-summary', { params }),
+  // params: { startDate, endDate }
+};
+
+// ============================================
+// AUTHENTICATION API ✅ NEW
+// ============================================
+export const authAPI = {
+  login: (credentials) => api.post('/auth/login', credentials),
+  // body: { username, password }
+  // response: { success, message, token, user }
+  
+  logout: () => api.post('/auth/logout'),
+  
+  getMe: () => api.get('/auth/me'),
+  // requires x-user-id header or ?userId query param
 };
 ```
 
@@ -1173,7 +1243,8 @@ export const accountsAPI = {
 ```bash
 # Terminal 1: Backend
 cd tech_server
-npm run dev
+node src/server.js
+# or: npm start
 
 # Terminal 2: Frontend
 cd tech_client
@@ -1181,30 +1252,90 @@ npm run dev
 ```
 
 ### URLs
-- **Backend**: http://localhost:3000
-- **Frontend**: http://localhost:3001
+- **Backend API**: http://localhost:3001
+- **Frontend**: http://localhost:3000
+
+---
+
+## ✅ Backend API Reference (All Implemented)
+
+All backend API endpoints are now fully implemented and ready for frontend integration.
+
+### Core CRUD Endpoints
+
+| Module | GET All | GET One | POST | PUT | DELETE |
+|--------|---------|---------|------|-----|--------|
+| **Students** | ✅ `/students` | ✅ `/students/:id` | ✅ `/students` | ✅ `/students/:id` | ✅ `/students/:id` |
+| **Grades** | ✅ `/grades/student/:studentId` | - | ✅ `/grades` | ✅ `/grades/:id` | ✅ `/grades/:id` |
+| **Attendance** | ✅ `/attendance/student/:studentId` | - | ✅ `/attendance` | ✅ `/attendance/:id` | ✅ `/attendance/:id` |
+| **Observed Values** | ✅ `/observed-values/student/:studentId` | - | ✅ `/observed-values` | ✅ `/observed-values/:id` | ✅ `/observed-values/:id` |
+| **Subjects** | ✅ `/subjects` | ✅ `/subjects/:id` | ✅ `/subjects` | ✅ `/subjects/:id` | ✅ `/subjects/:id` |
+| **Accounts** | ✅ `/accounts` | ✅ `/accounts/:id` | ✅ `/accounts` | ✅ `/accounts/:id` | ✅ `/accounts/:id` |
+
+### Analytics Endpoints (For Super Admin Dashboard)
+
+| Endpoint | Purpose | Response |
+|----------|---------|----------|
+| `GET /analytics/dashboard-stats` | Aggregated statistics | `{ totalStudents, totalAccounts, totalSubjects, attendanceRate, averageGrades }` |
+| `GET /analytics/student-distribution` | Students by grade level | `[{ gradeLevel, count }]` |
+| `GET /analytics/grade-performance` | Average grades per subject | `[{ subject, average }]` |
+| `GET /analytics/attendance-trend?year=2024` | Monthly attendance data | `[{ month, present, absent, tardy }]` |
+| `GET /analytics/grade-distribution` | Grade bracket distribution | `[{ grade, count }]` |
+
+### Reports Endpoints
+
+| Endpoint | Query Params | Response |
+|----------|--------------|----------|
+| `GET /reports/class-summary` | `gradeLevel`, `section` | Class-wide performance with top performers & struggling students |
+| `GET /reports/grade-analytics` | `quarter`, `gradeLevel` | Statistical analysis with subject averages & pass rates |
+| `GET /reports/attendance-summary` | `startDate`, `endDate` | Monthly breakdown with perfect attendance students |
+
+### Authentication Endpoints
+
+| Endpoint | Method | Body/Response |
+|----------|--------|---------------|
+| `/auth/login` | POST | Body: `{ username, password }` → `{ token, user }` |
+| `/auth/logout` | POST | `{ success, message }` |
+| `/auth/me` | GET | Returns current user (requires `x-user-id` header) |
+
+### Special Endpoints
+
+| Endpoint | Purpose |
+|----------|---------|
+| `GET /students/:id/report-card` | Get complete report card with grades, attendance, observed values |
 
 ---
 
 ## 📝 Summary
 
-This guide covers the complete frontend implementation including:
+| Feature | Frontend Status | Backend Status |
+|---------|-----------------|----------------|
+| Project Setup | ✅ Ready | ✅ Ready |
+| Design System | ✅ Ready | N/A |
+| Core UI Components | ✅ Ready | N/A |
+| Authentication | ✅ Ready | ✅ Implemented |
+| Role-Based Access | ✅ Ready | ✅ Implemented |
+| Landing Page (5 Sections) | ✅ Ready | N/A |
+| Dashboard Layout | ✅ Ready | N/A |
+| Student Management | ✅ Ready | ✅ Full CRUD |
+| Grades Management | 🔨 Needs Frontend | ✅ Full CRUD |
+| Attendance Management | 🔨 Needs Frontend | ✅ Full CRUD |
+| Observed Values | 🔨 Needs Frontend | ✅ Full CRUD |
+| Analytics Dashboard | 🔨 Needs Frontend | ✅ 5 Endpoints |
+| Reports Module | 🔨 Needs Frontend | ✅ 3 Endpoints |
 
-| Feature | Status |
-|---------|--------|
-| Project Setup | ✅ |
-| Design System | ✅ |
-| Core UI Components | ✅ |
-| Authentication | ✅ |
-| Role-Based Access | ✅ |
-| Landing Page (5 Sections) | ✅ |
-| Dashboard Layout | ✅ |
-| Student Management | ✅ |
-| API Integration | ✅ |
+**Frontend Implementation Checklist:**
 
-**Next Steps:**
-1. Implement remaining CRUD modals
-2. Add Grade Management page
-3. Add Attendance tracking
-4. Add Report Card generation
-5. Implement Observed Values module
+1. ☐ Connect Delete buttons to `studentsAPI.delete()` 
+2. ☐ Add Edit student modal using `studentsAPI.update()`
+3. ☐ Implement Grade Management page with CRUD
+4. ☐ Implement Attendance tracking page with CRUD
+5. ☐ Implement Observed Values page with CRUD
+6. ☐ Build Super Admin Analytics dashboard with ApexCharts
+7. ☐ Implement Reports page with class summary, grade analytics, attendance summary
+8. ☐ Update AuthContext to use `authAPI.login()` instead of fetching all accounts
+
+---
+
+*Last Updated: February 2026*
+

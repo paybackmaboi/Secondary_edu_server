@@ -1,0 +1,22 @@
+services:
+  - type: web
+    name: tech-server
+    env: node
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: DB_NAME
+        value: test
+      - key: DB_HOST
+        value: gateway01.ap-southeast-1.prod.aws.tidbcloud.com
+      - key: DB_PORT
+        value: 4000
+      - key: DB_USERNAME
+        value: 3tn7UNYiFgYPQe5.root
+      - key: DB_PASSWORD
+        sync: false

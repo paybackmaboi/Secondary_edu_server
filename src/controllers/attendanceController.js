@@ -31,3 +31,16 @@ exports.updateAttendance = async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 };
+
+exports.deleteAttendance = async (req, res) => {
+    try {
+        const deleted = await Attendance.destroy({ where: { id: req.params.id } });
+        if (deleted) {
+            res.status(200).json({ success: true, message: 'Attendance record deleted successfully' });
+        } else {
+            res.status(404).json({ error: 'Attendance record not found' });
+        }
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
