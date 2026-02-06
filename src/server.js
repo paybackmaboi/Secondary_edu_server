@@ -68,7 +68,7 @@ app.use('/api/reports', reportsRoutes);
 app.use('/api/auth', authRoutes);
 
 // Database sync
-db.sequelize.sync({ alter: true }).then(() => {
+db.sequelize.sync().then(() => {
     console.log('Database synced');
     app.listen(PORT, () => {
         console.log(`Server is running on port ${PORT}`);
